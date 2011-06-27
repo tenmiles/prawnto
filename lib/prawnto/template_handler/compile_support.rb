@@ -1,6 +1,5 @@
 module Prawnto
   module TemplateHandler
-
     class CompileSupport
       extend ActiveSupport::Memoizable
       
@@ -29,28 +28,14 @@ module Prawnto
       end
       memoize :ie_request?
 
-      # added to make ie happy with ssl pdf's (per naisayer)
-      def ssl_request?
-        @controller.request.env['SERVER_PROTOCOL'].downcase == "https"
-      end
-      memoize :ssl_request?
-
       # TODO: kept around from railspdf-- maybe not needed anymore? should check.
       def set_pragma
-        if ssl_request? && ie_request?
-          @controller.headers['Pragma'] = 'public' # added to make ie ssl pdfs work (per naisayer)
-        else
-          @controller.headers['Pragma'] ||= ie_request? ? 'no-cache' : ''
-        end
+        @controller.headers['Pragma'] ||= ie_request? ? 'no-cache' : ''
       end
 
       # TODO: kept around from railspdf-- maybe not needed anymore? should check.
       def set_cache_control
-        if ssl_request? && ie_request?
-          @controller.headers['Cache-Control'] = 'maxage=1' # added to make ie ssl pdfs work (per naisayer)
-        else
-          @controller.headers['Cache-Control'] ||= ie_request? ? 'no-cache, must-revalidate' : ''
-        end
+        @controller.headers['Cache-Control'] ||= ie_request? ? 'no-cache, must-revalidate' : ''
       end
 
       def set_content_type
@@ -62,9 +47,7 @@ module Prawnto
         filename = options[:filename] ? "filename=#{options[:filename]}" : nil
         @controller.headers["Content-Disposition"] = [inline,filename].compact.join(';')
       end
-
     end
-
   end
 end
 
